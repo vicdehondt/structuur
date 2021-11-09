@@ -1,5 +1,18 @@
 (#%require racket/trace)
 
+(define (accumulate lst op ne)
+  (if (null? lst)
+      ne
+      (op (car lst)
+          (accumulate (cdr lst) op ne))))
+
+(define (filter pred lst)
+  (cond ((null? lst) '())
+        ((pred (car lst))
+         (cons (car lst)
+               (filter pred (cdr lst))))
+        (else (filter pred (cdr lst)))))
+
 (define flip
   (let ((counter 0))
     (if (zero? counter)
