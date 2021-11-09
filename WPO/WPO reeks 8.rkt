@@ -1,4 +1,4 @@
-
+(#%require racket/trace)
 
 (define flip
   (let ((counter 0))
@@ -6,10 +6,6 @@
         (lambda ()
           (set! counter (if (zero? counter) 1 0))
           counter))))
-
-;(define counter 0)
-;(define (flip)
-;  (set! counter (modulo (+ counter 1) 2)))
 
 (define (make-flip)
   (let ((counter 0))
@@ -102,66 +98,62 @@
 
 (define (maak-laadstation)
 
-  (define gekoppeld #f)
+  (define gekoppeld? #f)
 
   (define elec-withdrawn 0)
 
-  (define (withdraw amount)
+  (define (withdraw! amount)
     (set! elec-withdrawn amount))
 
-  (define (koppel)
-    (set! gekoppeld #t))
+  (define (koppel!)
+    (set! gekoppeld? #t))
 
-  (define (ontkoppel)
-    (set! gekoppeld #f))
+  (define (ontkoppel!)
+    (set! gekoppeld? #f))
 
   (define (vrij?)
-    (equal? gekoppeld #f))
+    (equal? gekoppeld? #f))
   
   (define (dispatch m)
     (cond
-      ((eq? m 'withdraw!) withdraw)
+      ((eq? m 'withdraw!) withdraw!)
       ((eq? m 'total-withdrawn) elec-withdrawn)
-      ((eq? m 'koppel!) (koppel))
-      ((eq? m 'ontkoppel!) (ontkoppel))
+      ((eq? m 'koppel!) (koppel!))
+      ((eq? m 'ontkoppel!) (ontkoppel!))
       ((eq? m 'vrij?) (vrij?))
       (else (display "ERROR wrong message!"))))
   dispatch)
 
 (define (maak-auto capaciteit)
-
-  (define laadstation #f)
   
-  (define charge-kw 0)
-
-  (define (percentage value)
-    (* (/ value capaciteit) 100))
-
-  (define (charge)
-    (percentage charge-kw))
+  (define percentage 50)
+  
+  (define laadstation #f)
+    
+  (define (charge) percentage)
 
   (define (charge!)
-    (cond
-      ((equal? laadstation #f) (display "Niet gekoppeld"))
-      (else (set! charge-kw capaciteit))))
-
-  (define (koppel laadstation)
-    (cond
-      ((not laadstation)
-       (set! laadstation laadstation)
-       ((laadstation 'koppel!) dispatch))))
-
-  (define (ontkoppel)
+    (if laadstation
+        (let ((amount (* (/ (- 100 percentage) 100) capaciteit)))
+          ((laadstation 'withdraw!) amount)
+          (set! percentage 100))
+        (display "Not connected to charger!")))
+    
+  (define (koppel! station)
+    (if (not laadstation)
+        (set! laadstation station)
+        ((laadstation 'koppel!) dispatch)))
+    
+  (define (ontkoppel!)
     (set! laadstation #f))
 
-  
   (define (dispatch m)
     (cond
       ((eq? m 'charge) (charge))
       ((eq? m 'charge!) (charge!))
-      ((eq? m 'koppel!) koppel)
-      ((eq? m 'ontkoppel!) (ontkoppel))
-      (else (display "ERROR worng message!"))))
+      ((eq? m 'koppel!) koppel!)
+      ((eq? m 'ontkoppel!) (ontkoppel!))
+      (else "ERROR UNKNOWN MESSAGE")))
   dispatch)
 
 (define (maak-laadpark n)
@@ -184,11 +176,11 @@
             #f)))
 
 
-  (define (dispatch m)
-    (cond
-      ((eq? m 'full?) full?)
-      ((eq? m 'enter!) enter!)
-      (else (display "ERROR wrong message!"))))
+    (define (dispatch m)
+      (cond
+        ((eq? m 'full?) full?)
+        ((eq? m 'enter!) enter!)
+        (else (display "ERROR wrong message!"))))
     dispatch))
 
 ; tests
@@ -207,6 +199,9 @@
         (newline))))
 
 ; parking tests
+(display "PARKING")
+(newline)
+
 (define parking (make-parking 3 5))
 
 (test 1 (parking 'level) 1)
@@ -240,6 +235,9 @@
 (newline)
 
 ; laadstation tests
+(display "LAADSTATION")
+(newline)
+
 (define batterij (maak-laadstation))
 
 (test 1 (batterij 'vrij?) #t)
@@ -256,10 +254,12 @@
 (newline)
 
 ; auto tests
+(display "AUTO")
+(newline)
 
 (define tesla (maak-auto 100))
 
-(test 1 (tesla 'charge) 0)
+(test 1 (tesla 'charge) 50)
 
 ((tesla 'koppel!) batterij)
 
@@ -268,22 +268,4 @@
 (test 2 (tesla 'charge) 100)
 
 (tesla 'ontkoppel!)
-
-(newline)
-
-; laadpark tests
-
-(define super-chargers (maak-laadpark 2))
-
-(define model-s (maak-auto 100))
-
-(define model-x (maak-auto 150))
-
-(define model-3 (maak-auto 80))
-
-
-
-
-
-
 
