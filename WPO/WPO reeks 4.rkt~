@@ -1,0 +1,11 @@
+(define (product factor a next b)
+  (if (> a b)
+      1
+      (* (factor a) (product factor (next a) next b))))
+
+(define (iter-product factor a next b)
+  (define (iter count result)
+    (if (> a b)
+        1
+        (iter-product factor (* result a) (+ next count) b)))
+  (count 1 1))

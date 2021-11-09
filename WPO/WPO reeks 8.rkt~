@@ -1,0 +1,8 @@
+(#%require racket/trace)
+
+(define flip
+  (let ((counter 0))
+    (if (zero? counter)
+        (lambda ()
+          (set! counter (if (zero? counter) 1 0))
+        counter))))

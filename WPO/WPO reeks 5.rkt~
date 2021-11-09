@@ -1,0 +1,44 @@
+(define (add-to-end e l)
+  (if (null? l)
+      (list e)
+      (cons (car l) (add-to-end e (cdr l)))))
+
+;(define (append x y)
+;  (define (iter y res)
+;    (if (null? y)
+;        (reverse res)
+;        (iter (cdr y) (cons (car y) res))))
+;  (iter y (reverse x)))
+; kan met 1 reverse minder, zoals:
+
+(define (append x y)
+  (define (iter x res)
+    (if (null? x)
+        res
+        (iter (cdr x) (cons (car x) res))))
+  (iter (reverse x) y))
+
+(define (reverse l)
+  (if (null? l)
+      '()
+      (append (reverse (cdr l)) (cons (car l) '()))))
+
+(define (iter-reverse l)
+  (define (iter l res)
+    (if (null? l)
+        res
+        (iter (cdr l) (cons (car l) res))))
+  (iter l '()))
+
+(define (last list)
+  (define (iter result)
+    (cond
+      ((null? result) #f)
+      ((null? (cdr result)) (car result))
+      (else (iter (cdr result)))))
+  (iter list))
+
+(define (change e1 e2 l)
+  (if (eq? (car l) e1)
+      (change e1 e2 (append 'e2 (cdr l)))
+      (list (car l) change e1 e2 (cdr l))))

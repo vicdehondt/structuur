@@ -1,0 +1,39 @@
+(#%require racket/trace)
+;Reeksontwikkeling: Cosinus
+(define (calc-cos x n)
+  (define (iter term_count previous_exponent previous_nominator previous_denominator result)
+    (define current_exponent (+ previous_exponent 2))
+    (define current_nominator (* previous_nominator x x))
+    (define current_denominator (* previous_denominator (+ previous_exponent 1) (+ previous_exponent 2)))
+    (if (>= term_count n)
+      result
+      (if (zero? (modulo current_exponent 4))
+          (iter (+ term_count 1)
+                current_exponent
+                current_nominator
+                current_denominator
+                (+ result
+                   (/ current_nominator current_denominator)))
+          (iter (+ term_count 1)
+                current_exponent
+                current_nominator
+                current_denominator
+                (- result
+                   (/ current_nominator current_denominator))))))
+  ;(trace iter)
+  (if (< n 1)
+      0
+      (iter 1 0 1 1 1)))
+
+(define actual (list (calc-cos 0 10)
+         (calc-cos (/ 3.1415 2) 10)
+         (calc-cos 3.1415 10)
+         (calc-cos 10 0)))
+
+(define expected (list 1 4.6326794876592664e-5 -0.9999999992346591 0))
+
+(if (equal? actual expected)
+    (display "passed")
+    (begin
+      (display "failed ")
+      (display actual)))
