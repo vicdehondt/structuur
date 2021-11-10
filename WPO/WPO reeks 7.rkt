@@ -1,20 +1,24 @@
 (#%require racket/trace)
 
+; 7.1
 (define (atom? x)
   (not (pair? x)))
 
+; 7.2.1
 (define (leaf-count tree)
   (cond
     ((null? tree) 0)
     ((atom? tree) 1)
     (else (+ (leaf-count (car tree)) (leaf-count (cdr tree))))))
 
+; 7.2.2
 (define (depth tree)
   (cond
     ((null? tree) 0)
     ((atom? tree) 0)
     (else (max (+ 1 (depth (car tree))) (depth (cdr tree))))))
 
+; 7.2.3
 (define (depth-and-leaf-count tree)
   (cond
     ((null? tree) (cons 0 0))
@@ -26,12 +30,14 @@
                   (car right))
              (+ (cdr left) (cdr right)))))))
 
+; 7.3
 (define (fringe l)
   (cond
     ((null? l) '())
     ((atom? l) (list l))
     (else (append (fringe (car l)) (fringe (cdr l))))))
 
+; 7.5
 (define (same-structure? l1 l2)
   (cond ((and (null? l1) (null? l2)) #t)
         ((or  (null? l1) (null? l2)) #f)
@@ -48,6 +54,7 @@
            (same-structure?-or (car l1) (car l2))
            (same-structure?-or (cdr l1) (cdr l2)))))
 
+; 7.6.1
 (define (deep-combine combiner null-value l)
   (cond
     ((null? l) null-value)
@@ -55,6 +62,7 @@
     (else (combiner (deep-combine combiner null-value (car l))
                     (deep-combine combiner null-value (cdr l))))))
 
+; 7.6.2
 (define (deep-map f l)
   (cond
     ((null? l) '())
@@ -62,22 +70,27 @@
     (else (cons (deep-map f (car l))
                 (deep-map f (cdr l))))))
 
+; 7.6.3
 (define (deep-change e1 e2 l)
   (deep-map (lambda (x) (if (eq? x e1) e2 x)) l))
 
+; 7.6.4
 (define (deep-atom-member? e l)
   (deep-combine (lambda (x y) (or x y))
                 #f
                 (deep-map (lambda (x) (eq? x e)) l)))
 
+; 7.6.5
 (define (count-atoms l)
   (deep-combine + 0 (deep-map (lambda (x) 1) l)))
 
+; 7.9
 (define boom
   '((blad (appel . golden))
     (blad (appel . granny))
     (((appel . golden) blad) blad (appel . cox))))
 
+; 7.9.1
 ; gekeken op Reinout zijn scherm
 (define (leafs boom)
   (cond
@@ -86,6 +99,7 @@
     ((and (atom? boom) (not (equal? boom 'blad))) 0)
     (else (+ (leafs (car boom)) (leafs (cdr boom)))))) ; geen goede methode, hulpprocedures nodig
 
+; 7.9.2
 (define (all-apples boom)
   (cond
     ((null? boom) '())
@@ -94,6 +108,7 @@
     ((and (atom? boom) (not (and (equal? boom 'appel) (equal? boom 'blad)))) boom)
     (else (append (all-apples (car boom)) (all-apples (cdr boom))))))
 
+; 7.9.3
 (define (insert el set)
   (if (member el set)
       set
@@ -118,6 +133,7 @@
 (define (appel? boom)
   (equal? (car boom) 'appel))
 
+; 7.9.4
 (define (bewerk-boom boom doe-blad doe-appel combiner init)
   (cond
     ((null? boom) init)
@@ -127,15 +143,19 @@
      (combiner (bewerk-boom (car boom) doe-blad doe-appel combiner init)
                (bewerk-boom (cdr boom) doe-blad doe-appel combiner init)))))
 
+; 7.9.5
 (define (leafs-dmv-bewerk boom)
   (bewerk-boom boom (lambda (blad) 1) (lambda (appel) 0) + 0))
 
+; 7.9.6
 (define (all-apples-dmv-bewerk boom)
   (bewerk-boom boom (lambda (blad) '()) (lambda (appel) (list (cdr appel))) append '()))
 
+; 7.9.7
 (define (apple-types-dmv-bewerk boom)
   (bewerk-boom boom (lambda (blad) '()) (lambda (appel) (list (cdr appel))) union '()))
 
+; 7.11
 (define organigram
   '(directeur
     (hoofd-verkoop (verkoopsleider-vlaanderen)
@@ -147,6 +167,7 @@
     (hoofd-administratie (hoofd-personeel)
                          (hoofd-boekhouding))))
 
+; 7.11.1
 (define (baas organigram)
   (car organigram))
 
@@ -167,8 +188,7 @@
       '()
       (bazen-van organigram '())))
 
-;(trace bazen-van)
-
+; 7.11.2
 (define (hierarchisch? p1 p2 organigram)
   (define (hierarchisch? organigram pad)
     (cond
@@ -182,6 +202,7 @@
                 (hierarchisch?-in (cdr lst) pad)))))
   (hierarchisch? organigram '()))
 
+; 7.11.3
 (define (collegas p organigram)
   (define (collegas organigram pad)
     (cond
@@ -201,6 +222,7 @@
           (werknemers-in (sub-organigrammen organigram))))
   (collegas organigram '()))
 
+; 7.13
 (define VUBOrganigram
   '(VUB (academisch (rectoraat)
                     (faculteiten
@@ -217,7 +239,6 @@
                                             (ma-cw)))))
         (administratief (personeel) (financien))))
 
-; 7.13
 (define (display-n n d)
   (cond ((> n 0) (display d)
                  (display-n (- n 1) d))))

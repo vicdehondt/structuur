@@ -60,3 +60,9 @@
 
 (define (sci-coefficient getal)
   (/ getal (expt 10 (sci-exponent getal))))
+
+(define (discount prijs korting)
+  (- prijs (* prijs (/ korting 100.0))))
+
+(define (tip bedrag)
+  (ceiling (* bedrag (/ 15 100.00))))

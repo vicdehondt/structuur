@@ -15,12 +15,14 @@
 (define (rec-multiply a b)
   (if (zero? b)
       0
-      (+ a (rec-multiply a (1- b)))))
+      (+ a (rec-multiply a (- b 1)))))
 
 (define (iter-multiply a b)
-  (if (= b 1)
-      (* a b)
-      (iter-multiply (+ (* a (1- b)) a) (1- b))))
+  (define (iter result counter)
+    (if (zero? counter)
+        result
+        (iter (+ result a) (- counter 1))))
+  (iter 0 b))
 
 (define (double a)
   (+ a a))
@@ -28,18 +30,27 @@
 (define (halve a)
   (/ a 2))
 
+(define (square x)
+  (* x x))
+
 (define (rec-fast-multiply a b)
   (cond
     ((zero? b) 0)
-    ((even? b) (+ (* (halve b) a)
-                  (rec-fast-multiply (* a (halve b)) (halve b))))
-    ((= b 1) )
-    (else (display "test"))))
+    ((even? b) (rec-fast-multiply (double a) (halve b)))
+    (else (+ a (rec-fast-multiply a (- b 1))))))
+
+(define (iter-fast-multiply a b)
+  (define (iter a b acc)
+    (cond
+      ((zero? b) acc)
+      ((even? b) (iter (double a) (halve b) acc))
+      (else (iter a (- b 1) (+ acc a)))))
+  (iter a b 0))
 
 
 (define (calc-e n)
   (define (iter counter result prev-fac)
-    (if (= counter n)
+    (if (> counter n)
         result
         (iter (+ counter 1) (+ result (/ 1 (* counter prev-fac))) (* counter prev-fac))))
   (iter 1 1 1))

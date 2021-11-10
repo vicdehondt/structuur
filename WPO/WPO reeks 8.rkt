@@ -13,6 +13,7 @@
                (filter pred (cdr lst))))
         (else (filter pred (cdr lst)))))
 
+; 8.1.1
 (define flip
   (let ((counter 0))
     (if (zero? counter)
@@ -20,6 +21,7 @@
           (set! counter (if (zero? counter) 1 0))
           counter))))
 
+; 8.1.3
 (define (make-flip)
   (let ((counter 0))
     (if (zero? counter)
@@ -35,6 +37,7 @@
 ;      (set! x_i_1 (/ x_i m))
 ;      (exact->inexact x_i_1))))
 
+; 8.2.1
 (define (make-random m a seed)
   (define (generate)
     (set! seed (modulo (* seed a) m))
@@ -48,6 +51,7 @@
       (else (display "fault"))))
   dispatch)
 
+; 8.10
 (define (make-counter initial)
   (define (increase!)
     (set! initial (+ initial 1)))
@@ -109,6 +113,7 @@
       (else (display "ERROR wrong message!"))))
   dispatch)
 
+; 8.16.1
 (define (maak-laadstation)
 
   (define gekoppeld? #f)
@@ -137,6 +142,7 @@
       (else (display "ERROR wrong message!"))))
   dispatch)
 
+; 8.16.2
 ; Niet juiste methode:
 (define (maak-auto capaciteit)
   
@@ -197,6 +203,7 @@
         (else "ERROR UNKNOWN MESSAGE")))
     dispatch))
 
+; 8.16.3
 (define (maak-laadpark n)
 
   (define (make-stations n)
