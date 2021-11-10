@@ -32,23 +32,21 @@
     ((atom? l) (list l))
     (else (append (fringe (car l)) (fringe (cdr l))))))
 
-;fout
-;(define (same-structure? l1 l2)
-;  (cond
-;    ((and (null? l1) (not (null? l2))) #f)
-;    ((and (atom? l1) (atom? l2)) #t)
-;    ((and (pair? (car l1)) (pair? (car l2))) (same-structure? (cdr l1) (cdr l2)))
-;    ((not (= (length l1) (length l2))) #f)
-;    ((and (pair? (car l1)) (atom? (car l2))) #f)
-;    ((and (pair? (car l2)) (atom? (car l1))) #f)
-;    (else #t)))
-
 (define (same-structure? l1 l2)
-  (cond
-    ((and (null? l1) (not (null? l2))) #f)
-    ((not (= (length l1) (length l2))) #f)
-    ((and (atom? l1) (atom? l2)) #t)
-    (else (same-structure? (cdr l1) (cdr l2)))))
+  (cond ((and (null? l1) (null? l2)) #t)
+        ((or  (null? l1) (null? l2)) #f)
+        ((and (atom? l1) (atom? l2)) #t)
+        ((or  (atom? l1) (atom? l2)) #f)
+        (else (and (same-structure? (car l1) (car l2))
+                   (same-structure? (cdr l1) (cdr l2))))))
+; of:
+(define (same-structure?-or l1 l2)
+  (or (and (null? l1) (null? l2))
+      (and (atom? l1) (atom? l2))
+      (and (pair? l1)
+           (pair? l2)
+           (same-structure?-or (car l1) (car l2))
+           (same-structure?-or (cdr l1) (cdr l2)))))
 
 (define (deep-combine combiner null-value l)
   (cond
@@ -107,29 +105,12 @@
       (insert (car set1)
               (union (cdr set1) set2))))
 
-;(define (apple-types boom)
-;  (define (x result boom)
-;    (define (member? result value)
-;    (cond
-;      ((null? result) #f)
-;      ((equal? (car result) value) #t)
-;      (else (member? (cdr result) value))))
-;  (cond
-;    ((null? boom) result)
-;    ((blad? boom) '())
-;    ((and (appel? boom) (member? result (cdr boom))) (append result (cdr boom)))
-;    (else (append (x (car boom) result) (x (cdr boom) result)))))
-;  (x '() boom))
-;(trace apple-types)
-
-;(define (apple-types boom)
-;  (cond
-;    ((null? boom) '())
-;    ((and (pair? boom) (equal? (car boom) 'appel)) (list (cdr boom)))
-;    ((and (atom? boom) (or (equal? boom 'blad) (equal? boom 'appel))) '())
-;    ;((and (pair? boom) (equal? (car boom) 'blad)) '())
-;    ((and (atom? boom) (not (and (equal? boom 'appel) (equal? boom 'blad)))) boom)
-;    (else (union (apple-types (car boom)) (all-apples (cdr boom))))))
+(define (apple-types boom)
+  (cond ((null? boom) '())
+        ((blad? boom) '())
+        ((appel? boom) (list (cdr boom)))
+        (else (union (apple-types (car boom))
+                     (apple-types (cdr boom))))))
 
 (define (blad? boom)
   (equal? boom 'blad))
@@ -236,6 +217,7 @@
                                             (ma-cw)))))
         (administratief (personeel) (financien))))
 
+; 7.13
 (define (display-n n d)
   (cond ((> n 0) (display d)
                  (display-n (- n 1) d))))
@@ -245,20 +227,108 @@
   (display tekst)
   (newline))
 
-(define (hoofd lst)
-  (car lst))
+; 7.13.1
+(define takken cdr)
+(define lbl car)
 
-(define (print lst)
-  (define (iter count lst)
+(define (print-vanaf organigram label)
+  (define (find-label organigram)
+    (if (eq? (lbl organigram) label)
+        organigram
+        (find-label-in (takken organigram))))
+
+  (define (find-label-in lst)
+    (if (null? lst)
+        #f
+        (or (find-label (car lst))
+            (find-label-in (cdr lst)))))
+
+  (define (print organigram diepte)
+    (print-lijn diepte (lbl organigram))
+    (print-in (takken organigram) (+ diepte 1)))
+
+  (define (print-in lst diepte)
+    (if (not (null? lst))
+        (begin
+          (print (car lst) diepte)
+          (print-in (cdr lst) diepte))))
+
+  (let ((to-print (find-label organigram)))
+    (if to-print
+        (print to-print 0)
+        #f)))
+
+; 7.13.2
+(define (print-tot organigram niveau)
+  (define (print-tot organigram diepte)
     (cond
-      ((atom? (car lst)) (print-lijn count (car lst)) (iter count (cdr lst)))
-      ((pair? (car lst)) (print-lijn count (car (car lst)))
-                               (iter (+ count 1) (cadr))
-                               (iter (count) (cdr lst)))))
-  (iter 0))
+      ((<= diepte niveau)
+       (print-lijn diepte (car organigram))
+       (print-tot-in (cdr organigram) (+ diepte 1)))))
 
-;(define (print-vanaf organigram label)
-;  (define (print-vanaf organigram pad)
-;    (cond
-;      ((eq? (car organigram) label) (print organigram))
-;      (else (display "test")))))
+  (define (print-tot-in lst diepte)
+    (cond
+      ((not (null? lst))
+       (print-tot (car lst) diepte)
+       (print-tot-in (cdr lst) diepte))))
+
+  (print-tot organigram 0))
+
+; 7.17
+(define familieboom '(jan (piet (frans (tom)
+                                       (roel))
+                                (mie))
+                          (bram (inge (bert (ina)
+                                            (ilse))
+                                      (bart))
+                                (iris))
+                          (joost (else (ilse)))))
+
+; 7.17.1
+(define (verdeel-democratisch familieboom budget)
+  (define (tel familieboom)
+    (if (not (pair? (cdr familieboom)))
+        1
+        (+ 1 (tel-in (cdr familieboom))))) ; kan een stuk korter: delete "" en werkt even goed
+
+  (define (tel-in lst)
+    (if (not (null? lst))
+        (+ (tel (car lst))
+           (tel-in (cdr lst)))
+        0))
+
+  (/ budget (- (tel familieboom) 1))) ;of (tel-in (cdr familiebomen), dan skip je de bovenste
+                                      ;persoon, die je er anders toch aftrekt
+
+; 7.17.2
+(define (budget familieboom budgettenlijst)
+  (define (budget familieboom budgettenlijst)
+       (if (null? budgettenlijst)
+           0
+           (+ (car budgettenlijst) (budget-in (cdr familieboom) (cdr budgettenlijst)))))
+
+  (define (budget-in lst budgettenlijst)
+    (if (null? lst)
+        0
+        (+ (budget (car lst) budgettenlijst)
+           (budget-in (cdr lst) budgettenlijst))))  
+
+  (budget-in (cdr familieboom) budgettenlijst))
+       
+; 7.17.3
+(define (verdeel familieboom budget)
+  (define (zonder-kind? familieboom)
+    (null? (cdr familieboom)))
+  
+  (define (verdeel familieboom budget)
+    (if (zonder-kind? familieboom)
+        (list (list (car familieboom) budget))
+        (verdeel-in (cdr familieboom) (/ budget (length (cdr familieboom))))))
+
+  (define (verdeel-in lst budget)
+    (if (null? lst)
+        '()
+        (append (verdeel (car lst) budget)
+                (verdeel-in (cdr lst) budget))))
+
+  (verdeel-in (cdr familieboom) (/ budget (length (cdr familieboom)))))
