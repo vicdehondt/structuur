@@ -137,6 +137,7 @@
       (else (display "ERROR wrong message!"))))
   dispatch)
 
+; Niet juiste methode:
 (define (maak-auto capaciteit)
   
   (define percentage 50)
@@ -168,6 +169,33 @@
       ((eq? m 'ontkoppel!) (ontkoppel!))
       (else "ERROR UNKNOWN MESSAGE")))
   dispatch)
+; Liever vars in een let
+
+; Sander:
+(define (maak-auto capaciteit)
+  (let ((percentage 50)
+        (laadstation #f))
+    (define (charge)
+      percentage)
+    (define (charge!)
+      (if laadstation
+          (let ((amount (* (/ (- 100 percentage) 100) capaciteit)))
+            ((laadstation 'withdraw!) amount)
+            (set! percentage 100))))
+    (define (koppel! station)
+      (if (not laadstation)
+          (set! laadstation station)
+          ((laadstation 'koppel!) dispatch)))
+    (define (ontkoppel!)
+      (set! laadstation #f))
+    (define (dispatch m)
+      (cond
+        ((eq? m 'charge) (charge))
+        ((eq? m 'charge!) (charge!))
+        ((eq? m 'koppel!) koppel!)
+        ((eq? m 'ontkoppel!) (ontkoppel!))
+        (else "ERROR UNKNOWN MESSAGE")))
+    dispatch))
 
 (define (maak-laadpark n)
 
