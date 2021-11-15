@@ -23,7 +23,7 @@
 
   (let ((lst (create-list n)))
     (set-cdr! last lst)
-  lst))
+    lst))
 
 ; Oef 9.4.1
 (define (left-rotate r)
@@ -32,7 +32,16 @@
 ; Oef 9.4.2
 (define (right-rotate r)
   (define (iter lst)
-    (if (= (car lst) 0)
+    (if (eq? (cdr lst) r)
         lst
         (iter (cdr lst))))
   (iter r))
+
+; Oef 9.5
+
+(define (cycles? r)
+  (cond
+    ((null? r) #f)
+    ((eq? (memq (car r) (cdr r)) #f) #f)
+    ((eq? r (memq (car r) (cdr r))) #t)
+    (else #f)))
