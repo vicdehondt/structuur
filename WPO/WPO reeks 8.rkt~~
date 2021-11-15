@@ -1,4 +1,4 @@
-(#%require racket/trace)
+
 
 (define flip
   (let ((counter 0))
