@@ -38,10 +38,12 @@
   (iter r))
 
 ; Oef 9.5
-
 (define (cycles? r)
   (cond
     ((null? r) #f)
-    ((eq? (memq (car r) (cdr r)) #f) #f)
     ((eq? r (memq (car r) (cdr r))) #t)
-    (else #f)))
+    (else (memq (car r) (cdr r)))))
+
+; Oef 9.8
+
+  
