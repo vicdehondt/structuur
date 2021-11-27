@@ -1,0 +1,14 @@
+; Structuur van Computerprogramma's - Taak 2
+
+(define (atom? x)
+  (not (pair? x)))
+
+; Oef 1 - Geneste lijsten: Minimum-Maximum
+(define (minmax tree)
+    (cond
+      ((null? tree) #f)
+      ((atom? tree) (cons tree tree))
+      (else (or (minmax (car tree))
+                (minmax (cdr tree))))))
+
+; Oef 2 - Familiebomen: Expressies Uitrekenen
