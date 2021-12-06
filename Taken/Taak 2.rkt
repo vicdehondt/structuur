@@ -20,9 +20,6 @@
       (iter tree (cons +inf.0 -inf.0))))
 
 ; Oef 2 - Familiebomen: Expressies Uitrekenen
-(define (atom? x)
-  (not (pair? x)))
-
 (define (reken-uit expressie x)
   (define (change-x expression value)
     (cond
@@ -43,9 +40,6 @@
   (iter 'nil (change-x expressie x) 'nil))
 
 ; Oef 3 - Familiebomen: Expressies Uitrekenen - Delen door 0
-(define (atom? x)
-  (not (pair? x)))
-
 (define (reken-uit expressie x)
   (define (change-x expression value)
     (cond
@@ -70,8 +64,3 @@
                 (else (op left right)))))))
   
   (iter 'nil (change-x expressie x) 'nil))
-
-
-
-
-
