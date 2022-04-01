@@ -319,14 +319,14 @@
         0))
 
   (/ budget (- (tel familieboom) 1))) ;of (tel-in (cdr familiebomen), dan skip je de bovenste
-;persoon, die je er anders toch aftrekt
+                                      ;persoon, die je er anders toch aftrekt
 
 ; 7.17.2
 (define (budget familieboom budgettenlijst)
   (define (budget familieboom budgettenlijst)
-    (if (null? budgettenlijst)
-        0
-        (+ (car budgettenlijst) (budget-in (cdr familieboom) (cdr budgettenlijst)))))
+       (if (null? budgettenlijst)
+           0
+           (+ (car budgettenlijst) (budget-in (cdr familieboom) (cdr budgettenlijst)))))
 
   (define (budget-in lst budgettenlijst)
     (if (null? lst)
@@ -353,83 +353,3 @@
                 (verdeel-in (cdr lst) budget))))
 
   (verdeel-in (cdr familieboom) (/ budget (length (cdr familieboom)))))
-
-
-
-
-
-
-
-
-
-
-(define (deep-combine combiner null-value l)
-  (cond
-    ((null? l) null-value)
-    ((atom? l) l)
-    (else (combiner (deep-combine combiner null-value (car l))
-                    (deep-combine combiner null-value (cdr l))))))
-
-(define (deep-map f l)
-  (cond
-    ((null? l) '())
-    ((atom? l) (f l))
-    (else (cons (deep-map f (car l)) (deep-map f (cdr l))))))
-
-(define (deep-change e1 e2 l)
-  (deep-map (lambda (x) (if (eq? x e1) e2 x)) l))
-
-(define (deep-atom-member? e l)
-  (deep-combine (lambda (x y) (or x y)) #f (deep-map (lambda (x) (if (eq? x e) #t #f)) l)))
-
-(define (count-atoms l)
-  (deep-combine + 0 (deep-map (lambda (x) 1) l)))
-
-(define (tree-accumulate tree term combiner null-value)
-  (cond
-    ((null? tree) null-value)
-    ((atom? tree) (term tree))
-    (else (combiner (tree-accumulate (car tree) term combiner null-value)
-                    (tree-accumulate (cdr tree) term combiner null-value)))))
-
-(define (fringe-tree tree)
-  (cond
-    ((null? tree) '())
-    ((atom? tree) (list tree))
-    (else (append (fringe-tree (car tree)) (fringe-tree (cdr tree))))))
-
-(define (blad? boom)
-  (eq? boom 'blad))
- 
-(define (appel? boom)
-  (and (pair? boom) (eq? (car boom) 'appel)))
- 
-(define (type appel) (cdr appel))
-
-(define (leafs tree)
-  (cond
-    ((null? tree) 0)
-    ((and (atom? tree) (eq? tree 'blad)) 1)
-    ((atom? tree) 0)
-    (else (+ (leafs (car tree)) (leafs (cdr tree))))))
-
-(define (all-apples tree)
-  (cond
-    ((or (null? tree) (blad? tree)) '())
-    ((appel? tree) (list (type tree)))
-    (else (append (all-apples (car tree)) (all-apples (cdr tree))))))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
